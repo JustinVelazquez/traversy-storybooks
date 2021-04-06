@@ -27,8 +27,16 @@ process.env.NODE_ENV === 'development'
   ? app.use(morgan('dev'))
   : app.use(morgan('common'));
 
+//Handlebars Helpers
+const { formatDate, stripTags, truncate, editIcon} = require('./routes/helpers/hbs')
+
 //handlebars
-app.engine('.hbs', exphbs({ defaultLayout: 'main', extname: '.hbs' }));
+app.engine('.hbs', exphbs({ helpers: {
+  formatDate,
+  stripTags,
+  truncate,
+  editIcon,
+}, defaultLayout: 'main', extname: '.hbs' }));
 app.set('view engine', '.hbs');
 
 //Sessions
@@ -45,9 +53,16 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
+//Set global Var
+app.use(function (req, res, next) {
+  res.locals.user = req.user || null
+  next();
+})
+
 //Routes
 app.use('/', require('./routes/routes'));
 app.use('/auth', require('./routes/auth'));
+app.use('/stories', require('./routes/stories'));
 
 const PORT = process.env.PORT || 5000;
 
